@@ -151,7 +151,7 @@ public class BitbucketRepository {
 
                     if (action.hasValidResults()) {
                         BuildResult result = action.getLastAction().getResult();
-                        comment = comment + "* * * \n\r";
+                        comment = comment + " | \n\r";
                         comment = comment + action.getDisplayName() + " " + result.getNumberOfWarnings();
                         if (result.getNumberOfWarnings() != 0) {
                             comment = comment + " (+" + result.getNumberOfNewWarnings() +
