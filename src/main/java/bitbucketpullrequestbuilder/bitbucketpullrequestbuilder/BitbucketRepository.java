@@ -87,7 +87,7 @@ public class BitbucketRepository {
                 trigger.getRepositoryOwner(),
                 trigger.getRepositoryName(),
                 trigger.getCiKey(),
-                trigger.getCiName(),
+                builder.getProject().getFullDisplayName(),
                 httpFactory
             );
             
