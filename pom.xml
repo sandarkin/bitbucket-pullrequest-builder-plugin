@@ -72,6 +72,24 @@
       <version>3.4</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.jvnet.hudson.plugins</groupId>
+      <artifactId>checkstyle</artifactId>
+      <version>3.43</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.jvnet.hudson.plugins</groupId>
+      <artifactId>findbugs</artifactId>
+      <version>4.62</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.jvnet.hudson.plugins</groupId>
+      <artifactId>pmd</artifactId>
+      <version>3.42</version>
+      <optional>true</optional>
+    </dependency>
   </dependencies>
 
   <pluginRepositories>

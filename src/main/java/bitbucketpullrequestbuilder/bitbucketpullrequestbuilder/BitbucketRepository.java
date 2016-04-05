@@ -1,6 +1,7 @@
 package bitbucketpullrequestbuilder.bitbucketpullrequestbuilder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -20,6 +21,13 @@ import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 
+import hudson.model.Action;
+import hudson.plugins.analysis.core.AbstractProjectAction;
+import hudson.plugins.analysis.core.BuildResult;
+import hudson.plugins.analysis.core.ResultAction;
+import hudson.plugins.checkstyle.CheckStyleProjectAction;
+import hudson.plugins.findbugs.FindBugsProjectAction;
+import hudson.plugins.pmd.PmdProjectAction;
 import jenkins.model.Jenkins;
 import jenkins.scm.api.SCMSource;
 import jenkins.scm.api.SCMSourceOwner;
@@ -134,6 +142,24 @@ public class BitbucketRepository {
 
         if (state == BuildState.FAILED || state == BuildState.SUCCESSFUL) {
             comment = String.format(BUILD_DESCRIPTION, builder.getProject().getDisplayName(), sourceCommit, destinationBranch);
+
+            for (Class<? extends AbstractProjectAction<? extends ResultAction<? extends BuildResult>>> clazz :
+                Arrays.asList(CheckStyleProjectAction.class, FindBugsProjectAction.class, PmdProjectAction.class)) {
+                Action uncertainAction = builder.getProject().getAction(clazz);
+                if (uncertainAction != null && AbstractProjectAction.class.isAssignableFrom(uncertainAction.getClass())) {
+                    AbstractProjectAction action = (AbstractProjectAction) uncertainAction;
+
+                    if (action.hasValidResults()) {
+                        BuildResult result = action.getLastAction().getResult();
+                        comment = comment + "* * * \n\r";
+                        comment = comment + action.getDisplayName() + " " + result.getNumberOfWarnings();
+                        if (result.getNumberOfWarnings() != 0) {
+                            comment = comment + " (+" + result.getNumberOfNewWarnings() +
+                                " -" + result.getNumberOfFixedWarnings() + ")";
+                        }
+                    }
+                }
+            }
         }
 
         this.client.setBuildStatus(owner, repository, sourceCommit, state, buildUrl, comment, this.builder.getProjectId());
