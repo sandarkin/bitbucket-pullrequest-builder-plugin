@@ -149,7 +149,7 @@ public class BitbucketRepository {
                 if (uncertainAction != null && AbstractProjectAction.class.isAssignableFrom(uncertainAction.getClass())) {
                     AbstractProjectAction action = (AbstractProjectAction) uncertainAction;
 
-                    if (action.hasValidResults()) {
+                    if (action.hasValidResults() && action.getLastAction().getResult().getNumberOfWarnings() > 0) {
                         BuildResult result = action.getLastAction().getResult();
                         comment = comment + " | \n\r";
                         comment = comment + action.getDisplayName() + " " + result.getNumberOfWarnings();
