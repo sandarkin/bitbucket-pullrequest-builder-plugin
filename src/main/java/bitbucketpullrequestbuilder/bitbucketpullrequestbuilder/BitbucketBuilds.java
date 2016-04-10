@@ -18,6 +18,8 @@ public class BitbucketBuilds {
     private BitbucketBuildTrigger trigger;
     private BitbucketRepository repository;
 
+    private final String rootUrl = Jenkins.getInstance().getRootUrl();
+
     public BitbucketBuilds(BitbucketBuildTrigger trigger, BitbucketRepository repository) {
         this.trigger = trigger;
         this.repository = repository;
@@ -37,7 +39,12 @@ public class BitbucketBuilds {
             return;
         }
         try {
+            String buildUrl = "";
+            buildUrl = rootUrl + build.getUrl();
             build.setDescription(cause.getShortDescription());
+            ;
+            repository.setBuildStatus(cause, BuildState.INPROGRESS, buildUrl,
+                build.getProject().getFullDisplayName() + " #" + build.getNumber());
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Can't update build description", e);
         }
@@ -49,14 +56,14 @@ public class BitbucketBuilds {
             return;
         }
         Result result = build.getResult();
-        String rootUrl = Jenkins.getInstance().getRootUrl();
         String buildUrl = "";
         if (rootUrl == null) {
             logger.warning("PLEASE SET JENKINS ROOT URL IN GLOBAL CONFIGURATION FOR BUILD STATE REPORTING");
         } else {
             buildUrl = rootUrl + build.getUrl();
             BuildState state = result == Result.SUCCESS ? BuildState.SUCCESSFUL : BuildState.FAILED;
-            repository.setBuildStatus(cause, state, buildUrl);
+            repository.setBuildStatus(cause, state, buildUrl,
+                build.getProject().getFullDisplayName() + " #" + build.getNumber());
         }
 
         if ( this.trigger.getApproveIfSuccess() && result == Result.SUCCESS ) {

@@ -126,19 +126,24 @@ public class BitbucketRepository {
                     pullRequest.getTitle(),
                     pullRequest.getSource().getCommit().getHash(),
                     pullRequest.getDestination().getCommit().getHash());
-            setBuildStatus(cause, BuildState.INPROGRESS, Jenkins.getInstance().getRootUrl());
             this.builder.getTrigger().startJob(cause);
         }
     }
 
-    public void setBuildStatus(BitbucketCause cause, BuildState state, String buildUrl) {
+    public void setBuildStatus(BitbucketCause cause, BuildState state, String buildUrl, String buildFullName) {
         String comment = null;
         String sourceCommit = cause.getSourceCommitHash();
         String owner = cause.getRepositoryOwner();
         String repository = cause.getRepositoryName();
         String destinationBranch = cause.getTargetBranch();
+        String key = this.builder.getProjectId();
 
         logger.info("setBuildStatus " + state + " for commit: " + sourceCommit + " with url " + buildUrl);
+
+        if (buildFullName != null && !buildFullName.isEmpty()) {
+            this.client.setName(buildFullName);
+            key = buildFullName.replaceAll("\\W+", "");
+        }
 
         if (state == BuildState.FAILED || state == BuildState.SUCCESSFUL) {
             comment = String.format(BUILD_DESCRIPTION, builder.getProject().getDisplayName(), sourceCommit, destinationBranch);
@@ -162,7 +167,7 @@ public class BitbucketRepository {
             }
         }
 
-        this.client.setBuildStatus(owner, repository, sourceCommit, state, buildUrl, comment, this.builder.getProjectId());
+        this.client.setBuildStatus(owner, repository, sourceCommit, state, buildUrl, comment, key);
     }
 
     public void deletePullRequestApproval(String pullRequestId) {

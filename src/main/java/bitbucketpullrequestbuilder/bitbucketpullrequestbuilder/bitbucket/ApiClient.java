@@ -104,7 +104,11 @@ public class ApiClient {
     public String getName() {
       return this.name;
     }
-    
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     private static MessageDigest SHA1 = null;
     
     /**
